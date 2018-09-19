@@ -6,10 +6,12 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour {
 
     public float speed;
+    public Text scoreText;
     public Text countText;
     public Text winText;
 
     private Rigidbody rb;
+    private int score;
     private int count;
 	// Use this for initialization
 	void Start () {
@@ -27,6 +29,11 @@ public class PlayerController : MonoBehaviour {
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
 
         rb.AddForce(movement * speed);
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -35,16 +42,30 @@ public class PlayerController : MonoBehaviour {
         {
             other.gameObject.SetActive(false);
             count += 1;
+            score += 1;
+            SetCountText();
+        }
+        else if (other.gameObject.CompareTag("Pick Up (Bad)"))
+        {
+            other.gameObject.SetActive(false);
+            count += 1;
+            score -= 1;
+            SetCountText();
+        }
+        else if (other.gameObject.CompareTag("Obstacle (Bad)"))
+        {
+            score -= 1;
             SetCountText();
         }
     }
 
     private void SetCountText()
     {
-        countText.text = "Count: " + count.ToString();
-        if (count >= 12)
+        scoreText.text = "Score: " + score.ToString();
+        countText.text = "Pick Ups: " + count.ToString();
+        if (GameObject.FindGameObjectsWithTag("Pick Up").Length == 0)
         {
-            winText.text = "You Win!";
+            winText.text = "Nice job! You finished with a score of: " + score.ToString();
         }
     }
 }
