@@ -9,17 +9,36 @@ public class PlayerController : MonoBehaviour {
     public Text scoreText;
     public Text countText;
     public Text winText;
+    public GameObject level1;
+    public GameObject level2;
 
     private Rigidbody rb;
+    private Renderer rd;
+    private Transform tf;
     private int score;
     private int count;
+    private int scoreFinal;
+    private bool finished;
+
+    private int currentLevel;
+    private int totalGoodPickups;
+    private int level2_Requirement;
+
 	// Use this for initialization
 	void Start () {
         rb = GetComponent<Rigidbody>();
+        rd = GetComponent<Renderer>();
+        tf = GetComponent<Transform>();
+        score = 0;
         count = 0;
         SetCountText();
         winText.text = "";
-	}
+        finished = false;
+
+        currentLevel = 1;
+        totalGoodPickups = GameObject.FindGameObjectsWithTag("Pick Up").Length;
+        level2_Requirement = 12;
+    }
 	
 	// Update is called once per frame
 	void FixedUpdate () {
@@ -34,6 +53,9 @@ public class PlayerController : MonoBehaviour {
         {
             Application.Quit();
         }
+
+        Color newColor = new Color(tf.position.x / 10, tf.position.y / 10, tf.position.z / 10, 1);
+        rd.material.color = newColor;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -52,7 +74,11 @@ public class PlayerController : MonoBehaviour {
             score -= 1;
             SetCountText();
         }
-        else if (other.gameObject.CompareTag("Obstacle (Bad)"))
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Obstacle (Bad)"))
         {
             score -= 1;
             SetCountText();
@@ -63,9 +89,35 @@ public class PlayerController : MonoBehaviour {
     {
         scoreText.text = "Score: " + score.ToString();
         countText.text = "Pick Ups: " + count.ToString();
-        if (GameObject.FindGameObjectsWithTag("Pick Up").Length == 0)
+        if (GameObject.FindGameObjectsWithTag("Pick Up").Length == (totalGoodPickups - level2_Requirement))
         {
-            winText.text = "Nice job! You finished with a score of: " + score.ToString();
+            nextLevel();
+        }
+        else if (GameObject.FindGameObjectsWithTag("Pick Up").Length == 0)
+        {
+            if (finished == false)
+            {
+                scoreFinal = score;
+            }
+            finished = true;
+            winText.text = "Nice job! You finished with a score of: " + scoreFinal.ToString();
+        }
+    }
+
+    private void nextLevel()
+    {
+        currentLevel += 1;
+        switch (currentLevel)
+        {
+            case 1:
+                rb.position = level1.transform.position + Vector3.up;
+                break;
+            case 2:
+                rb.position = level2.transform.position + Vector3.up;
+                break;
+            default:
+                //*shrug*
+                break;
         }
     }
 }

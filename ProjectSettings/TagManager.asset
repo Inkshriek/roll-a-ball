@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Pick Up
   - Pick Up (Bad)
+  - Obstacle
+  - Obstacle (Bad)
+  - Flip Obstacle
   layers:
   - Default
   - TransparentFX
